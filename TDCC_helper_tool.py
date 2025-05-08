@@ -48,7 +48,7 @@ with open('../statement.html', 'w', encoding='utf-8') as f:
     <h1>TDCC e-vote helper tool</h1>
     <p>Version: 2025.5.9</p>
     <p>Author: DavidChou</p>
-    <p>Repository: <a href="https://github.com/DavidChou23/TDCC_evote_helper">
+    <p>Repository: <a href="https://github.com/DavidChou23/TDCC_evote_helper">https://github.com/DavidChou23/TDCC_evote_helper</a> </p>
     <p>This script is only for assisting shareholders to complete the voting process in advance</p>
     <p>Voting content can be modified at any time without affecting the shareholder's intention</p>
     <p>This script is not responsible for any consequences caused by the use of this script</p>
