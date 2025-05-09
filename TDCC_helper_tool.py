@@ -17,6 +17,7 @@ import os
 import sys
 import json
 import threading
+os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--log-level=3"
 
 # print pwd
 print("current working directory: ", os.getcwd())
@@ -87,7 +88,7 @@ def id_check(id_number:str) -> int:
     return 0
 
 #要固定顯示的字 秒數 結束後要顯示的字
-def show_msg_on_driver(txt1, timeout_second, txt2):
+def show_msg_on_driver(txt1, timeout_second, txt2)-> None:
     try:
         # 1. **插入倒數計時的 HTML 元素**
         countdown_script = """
@@ -128,12 +129,12 @@ def show_msg_on_driver(txt1, timeout_second, txt2):
     except:
         pass
     
-def getdatetime():
+def getdatetime()-> str:
     now_year=str(int(datetime.datetime.now().strftime("%Y"))-1911)
     now_date=datetime.datetime.now().strftime("/%m/%d %H:%M:%S")
     return now_year+now_date
 
-def logout():
+def logout() -> None:
     global driver
     # logout
     driver.get("https://stockservices.tdcc.com.tw/evote/logout.html")
@@ -243,11 +244,16 @@ def autoLogin(user_ID):
             print("尚未登入完成，等待5秒")
             time.sleep(5)
             continue
-
+        time.sleep(time_speed*3)
         driver.get("https://stockservices.tdcc.com.tw/evote/shareholder/000/tc_estock_welshas.html")
         time.sleep(5*time_speed)
-        if len(driver.find_elements(By.CLASS_NAME,'c-fieldset_item'))>0:
-            break
+        while(True):
+            try:
+                if(driver.find_element(By.NAME,'qryStockId') != None):
+                    return
+            except:
+                time.sleep(1)
+                continue
         
         
 
@@ -423,6 +429,14 @@ def voting():
 
 def autovote(user_ID):
     global driver, voteinfolist
+    driver.get("https://stockservices.tdcc.com.tw/evote/shareholder/000/tc_estock_welshas.html")
+    time.sleep(2*time_speed)
+    while(True):
+        try:
+            driver.find_element(By.NAME,'qryStockId')
+            break
+        except:
+            time.sleep(2*time_speed)
     #自動投票
     print("------開始投票------")
     while(True):
@@ -484,6 +498,13 @@ def screenshot(user_id,info):
     driver.execute_script("document.body.style.zoom = '120%'")
     
     # adjust the window size
+    while(True):
+        try:
+            driver.find_element(By.CSS_SELECTOR,'div[class="u-width--100 u-t_align--right"]')
+            break
+        except:
+            time.sleep(1)
+            continue
     votedate_pic = driver.find_element(By.CSS_SELECTOR,'div[class="u-width--100 u-t_align--right"]')
     driver.set_window_size(516, votedate_pic.location['y']+votedate_pic.size['height']+370)
     
@@ -492,7 +513,10 @@ def screenshot(user_id,info):
         js="var q=document.documentElement.scrollTop=0"
         driver.execute_script(js) 
 
-        
+    if not os.path.exists(base_path+str(user_id)):
+        # if the directory does not exist, create it
+        os.makedirs(base_path+str(user_id))
+
     driver.save_screenshot(base_path+str(user_id)+"/"+ info[0] +"_"+ info[1].replace("*","") +".png")
     driver.execute_script("document.body.style.zoom = '100%'")
 
@@ -504,6 +528,14 @@ def auto_screenshot(user_id, stock_id):
     """
     global driver, voteinfolist
 
+    driver.get("https://stockservices.tdcc.com.tw/evote/shareholder/000/tc_estock_welshas.html")
+    time.sleep(2*time_speed)
+    while(True):
+        try:
+            driver.find_element(By.NAME,'qryStockId')
+            break
+        except:
+            time.sleep(2*time_speed)
     # search stock_id
     time.sleep(1*time_speed)
     driver.find_element(By.NAME,'qryStockId').clear()
@@ -530,10 +562,19 @@ def auto_screenshot(user_id, stock_id):
             i.find_elements(By.TAG_NAME,'td')[3].find_elements(By.TAG_NAME,'a')[1].click() # 按 查詢
             break
         elif "修改" not in i.text and "查詢" in i.text: #不可修改時
+            tmp=0
             for j in i.find_elements(By.TAG_NAME,'td')[3].find_elements(By.TAG_NAME,'a'):
                 if "查詢" in j.text:
                     j.click()
+                    tmp=1
                     break
+            if tmp==1:
+                break
+            
+    else: 
+        print("seems like no search result for: ", stock_id)
+        return
+
     time.sleep(0.6*time_speed)
     try:
         #出現訊息持有其他特別股
@@ -1037,14 +1078,20 @@ while(True):
                 sys.exit()
                 
             driver = webdriver.Edge(service=service) # use the installed driver
-            autoLogin(id)
-
+            while(True):
+                try:
+                    autoLogin(id)
+                    break
+                except Exception as e:
+                    print("error: ",e)
+                    continue
             # check if the page is loaded
-            driver.get("https://stockservices.tdcc.com.tw/evote/shareholder/000/tc_estock_welshas.html")
-            time.sleep(1.5)
-            # check if the page is loaded(by stock search box)
-            if driver.find_elements(By.NAME,'qryStockId'):
-                break
+            # driver.get("https://stockservices.tdcc.com.tw/evote/shareholder/000/tc_estock_welshas.html")
+            # while(True):
+            #     time.sleep(1.5)
+            #     # check if the page is loaded(by stock search box)
+            #     if driver.find_elements(By.NAME,'qryStockId'):
+            #         break
             
             while(True):
                 try:
@@ -1053,6 +1100,9 @@ while(True):
                     if stock_list == "-1":
                         break
                     stock_list=stock_list.replace(" ","").split(",")
+                    if(id not in voteinfolist.keys()):
+                        voteinfolist[id]=[]
+                    voteinfolist[id].extend(stock_list)
                     for stock_id in stock_list:
                         auto_screenshot(id, stock_id)
                 except Exception as e:
