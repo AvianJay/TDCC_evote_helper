@@ -1,5 +1,5 @@
 *.conf
-!dist/*/*.conf
+./screenshots/*
 *.png
 *.spec
 build/

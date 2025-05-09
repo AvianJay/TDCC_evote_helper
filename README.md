@@ -7,4 +7,4 @@ This script is not responsible for any consequences caused by the use of this sc
 
 ------------------------------------------
 build command:
-$pyinstaller -D ./TDCC_helper_tool.py
+$pyinstaller -F ./TDCC_helper_tool.py

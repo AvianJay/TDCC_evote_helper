@@ -19,10 +19,17 @@ import json
 import threading
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--log-level=3"
 
+#cd to the directory of the script
+def get_executable_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)  # For PyInstaller
+    else:
+        return os.path.dirname(os.path.abspath(__file__))
+
 # print pwd
 print("current working directory: ", os.getcwd())
-#cd to the directory of the script
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(get_executable_dir())
+print("current working directory: ", os.getcwd())
 
 
 # WARNING
@@ -36,7 +43,7 @@ print("This script is not responsible for any consequences caused by the use of 
 print("##########################################################")
 
 # generate statement html
-with open('../statement.html', 'w', encoding='utf-8') as f:
+with open('./statement.html', 'w', encoding='utf-8') as f:
     f.write('''
 <!DOCTYPE html>
 <html lang="en">
@@ -602,7 +609,7 @@ def auto_screenshot(user_id, stock_id):
 
 
 def write_voteinfolist(voteinfolist):
-    base_path = "../screenshots/"
+    base_path = "./screenshots/"
     with open(base_path+"id_list.txt", 'w', encoding='utf-8') as f:
         f.writelines([str(id)+"\n" for id in voteinfolist.keys()])
 
@@ -615,7 +622,7 @@ def write_voteinfolist(voteinfolist):
             f.writelines([str(id)+"\n" for id in stock_id_list])
 
 def read_voteinfolist(voteinfolist):
-    base_path = "../screenshots/"
+    base_path = "./screenshots/"
     # ls of all folders name in the directory
     folder_list = [f for f in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, f))]
     for folder in folder_list:
@@ -651,8 +658,8 @@ def read_vote_setting():
     abstain_list = []
     hash_value = ""
     # manual vote config reader
-    if os.path.exists('../vote_setting.conf'):
-        with open('../vote_setting.conf', 'r', encoding = 'utf8') as f:
+    if os.path.exists('./vote_setting.conf'):
+        with open('./vote_setting.conf', 'r', encoding = 'utf8') as f:
             lines = f.readlines()
         for line in lines:
             if "default:::" in line:
@@ -680,9 +687,9 @@ def read_vote_setting():
             print("vote_setting.conf file is corrupted(hash not match), please restart the program and reconfigure")
             # print("hash value: ", hash_value)
             # print("calculated hash value: ", hex_dig)
-            if os.path.exists('../vote_setting.conf.bak'):
-                os.remove('../vote_setting.conf.bak')
-            os.rename('../vote_setting.conf', '../vote_setting.conf.bak')
+            if os.path.exists('./vote_setting.conf.bak'):
+                os.remove('./vote_setting.conf.bak')
+            os.rename('./vote_setting.conf', './vote_setting.conf.bak')
             print("vote_setting.conf file is renamed to vote_setting.conf.bak")
             print("please reconfigure the vote setting")
             print("press Enter to exit")
@@ -715,7 +722,7 @@ def write_vote_setting():
             else:
                 manual_vote = True
 
-    with open('../vote_setting.conf', 'w', encoding = 'utf8') as f:
+    with open('./vote_setting.conf', 'w', encoding = 'utf8') as f:
         f.write("default:::"+default_vote+"\n")
         f.write("accept:::")
         f.write("|/|".join(accept_list))
@@ -809,15 +816,15 @@ def vi_vote_setting():
         print("setting saved")
         return
     elif tmp.lower() == "n":
-        if os.path.exists('../vote_setting.conf.bak'):
-            os.remove('../vote_setting.conf.bak')
-        os.rename('../vote_setting.conf', '../vote_setting.conf.bak')
+        if os.path.exists('./vote_setting.conf.bak'):
+            os.remove('./vote_setting.conf.bak')
+        os.rename('./vote_setting.conf', './vote_setting.conf.bak')
         return
 
 def write_program_setting():
     import hashlib
     global time_speed, shareholderIDs
-    with open('../program_setting.conf', 'w', encoding = 'utf8') as f:
+    with open('./program_setting.conf', 'w', encoding = 'utf8') as f:
         f.write("time_speed:::"+str(int(time_speed*2))+"\n")
         f.write("shareholderIDs:::"+"|/|".join(shareholderIDs)+"\n")
         content=str(time_speed*2)+"|/|"+"@".join(shareholderIDs)
@@ -831,7 +838,7 @@ def read_program_setting():
     global time_speed, shareholderIDs
     hash_value = ""
 
-    with open('../program_setting.conf', 'r', encoding = 'utf8') as f:
+    with open('./program_setting.conf', 'r', encoding = 'utf8') as f:
         settings = f.readlines()
     for line in settings:
         if "time_speed:::" in line:
@@ -849,9 +856,9 @@ def read_program_setting():
         print("program_setting.conf file is corrupted(hash not match), please restart the program and reconfigure")
         # print("hash value: ", hash_value)
         # print("calculated hash value: ", hex_dig)
-        if os.path.exists('../program_setting.conf.bak'):
-            os.remove('../program_setting.conf.bak')
-        os.rename('../program_setting.conf', '../program_setting.conf.bak')
+        if os.path.exists('./program_setting.conf.bak'):
+            os.remove('./program_setting.conf.bak')
+        os.rename('./program_setting.conf', './program_setting.conf.bak')
         print("program_setting.conf file is renamed to program_setting.conf.bak")
         print("please reconfigure the program setting")
         print("press Enter to exit")
@@ -913,9 +920,9 @@ def vi_program_setting():
         print("setting saved")
         return
     elif tmp.lower() == "n":
-        if os.path.exists('../program_setting.conf.bak'):
-            os.remove('../program_setting.conf.bak')
-        os.rename('../program_setting.conf', '../program_setting.conf.bak')
+        if os.path.exists('./program_setting.conf.bak'):
+            os.remove('./program_setting.conf.bak')
+        os.rename('./program_setting.conf', './program_setting.conf.bak')
         print("setting not saved")
         return
 
@@ -923,12 +930,12 @@ def load_settings():
     global time_speed, shareholderIDs
     global manual_vote, accept_list, opposite_list, abstain_list, default_vote
     
-    if not os.path.exists('../vote_setting.conf'):
+    if not os.path.exists('./vote_setting.conf'):
         print("current manual vote setting not found, please set it")
         vi_vote_setting()
         input("press enter to exit then run again")
         sys.exit()
-    if not os.path.exists('../program_setting.conf'):
+    if not os.path.exists('./program_setting.conf'):
         print("current ID list not found, please set it")
         vi_program_setting()
         input("press enter to exit then run again")
@@ -995,7 +1002,7 @@ abstain_list=[]
 
 voteinfolist={}
 #build working directory
-base_path="../screenshots/"
+base_path="./screenshots/"
 if not os.path.exists(base_path):
     # if the directory does not exist, create it
     os.makedirs(base_path)
@@ -1045,7 +1052,7 @@ while(True):
         load_settings()
         # build working directory
         for id in shareholderIDs:
-            path="../screenshots/"+id+"/"
+            path="./screenshots/"+id+"/"
             if not os.path.exists(path):
                 # if the directory does not exist, create it
                 os.makedirs(path)
@@ -1055,7 +1062,7 @@ while(True):
         for user_id in shareholderIDs:
             driver = webdriver.Edge(service=service) # use the installed driver
             # open a test page (can be local or online HTML)
-            driver.get("file:///" + os.path.abspath("../statement.html"))
+            driver.get("file:///" + os.path.abspath("./statement.html"))
             time.sleep(10)
             autoLogin(user_id)
             autovote(user_id)
