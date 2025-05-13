@@ -1,7 +1,8 @@
 *.conf
-./screenshots/*
 *.png
 *.spec
+*.html
+.qodo/
+.vscode/
 build/
-.qodo
-.vscode
+screenshots/

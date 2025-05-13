@@ -398,17 +398,19 @@ def voting():
         
         #### 系統異常處理
         try:
-            if "我不是機器人驗證失敗！" in driver.find_element(By.TAG_NAME,"form").text:
+            #if "我不是機器人驗證失敗！" in driver.find_element(By.TAG_NAME,"form").text:
+            if "我不是機器人驗證失敗！" in driver.find_element(By.TAG_NAME,"body").text:
                 thd=threading.Thread(target = show_msg_on_driver, args=("請點選機器人驗證", 0, "請點選機器人驗證"))
                 thd.start()
                 time.sleep(5)
-                driver.find_element(By.CSS_SELECTOR,'button[onclick="doProcess();"]').click()
+                driver.find_element(By.CSS_SELECTOR,'button[onclick="$.modal.close();return false;"]').click()
                 thd=threading.Thread(target = show_msg_on_driver, args=("腳本等待中", 30, "等待結束"))
                 thd.start()
                 time.sleep(1)
                 input("請點選機器人驗證後按Enter鍵繼續")
             
             if "系統操作逾時" in driver.find_element(By.TAG_NAME,"form").text:
+                print("系統操作逾時，請關閉程式重新開啟")
                 return
             
             if driver.find_element(By.TAG_NAME,'body').text.find("系統維護中") != -1:
@@ -1107,6 +1109,11 @@ while(True):
                     if stock_list == "-1":
                         break
                     stock_list=stock_list.replace(" ","").split(",")
+                    stock_list= [i for i in stock_list if i not in [""," ","\n"] and i.isdigit() and i>0]
+                    if len(stock_list) == 0:
+                        print("no stock ID found")
+                        continue
+                    print("start take screenshot of: ",stock_list)
                     if(id not in voteinfolist.keys()):
                         voteinfolist[id]=[]
                     voteinfolist[id].extend(stock_list)
