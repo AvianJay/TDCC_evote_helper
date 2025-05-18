@@ -2,6 +2,7 @@
 *.png
 *.spec
 *.html
+*.bak
 .qodo/
 .vscode/
 build/

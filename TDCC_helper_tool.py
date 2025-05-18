@@ -17,6 +17,7 @@ import os
 import sys
 import json
 import threading
+import random
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--log-level=3"
 
 #cd to the directory of the script
@@ -27,7 +28,7 @@ def get_executable_dir():
         return os.path.dirname(os.path.abspath(__file__))
 
 # print pwd
-print("current working directory: ", os.getcwd())
+# print("current working directory: ", os.getcwd())
 os.chdir(get_executable_dir())
 print("current working directory: ", os.getcwd())
 
@@ -141,6 +142,42 @@ def getdatetime()-> str:
     now_date=datetime.datetime.now().strftime("/%m/%d %H:%M:%S")
     return now_year+now_date
 
+def click_element(element: webdriver.remote.webelement.WebElement) -> None:
+    """
+    1. use while loop to wait for the element to be clickable
+    2. use action chain to move to the element and click it, in order to increase score of captcha
+    3. add random sleep and random offset when moving to the element for preventing detection
+    """
+    max_attempts = 5
+    attempts = 0
+    while True:
+        try:
+            # move to the element
+            action = ActionChains(driver)
+            # random offset and random sleep
+            for _ in range(3):
+                time.sleep(random.uniform(0.1, 0.2))
+                # random offset
+                offset_x = random.randint(-5, 5)
+                offset_y = random.randint(-5, 5)
+                action.move_by_offset(offset_x, offset_y)
+            action.move_to_element_with_offset(element, offset_x, offset_y).perform()
+            time.sleep(0.2)
+            # click the element
+            element.click()
+            break
+        except Exception as e:
+            if(attempts>=max_attempts):
+                print("click_element error: ", e)
+                break
+            else:
+                print("click_element error: ", e)
+                print("retrying...")
+                attempts += 1
+                time.sleep(0.5)
+                continue
+            time.sleep(1)
+
 def logout() -> None:
     global driver
     # logout
@@ -163,6 +200,7 @@ def autoLogin(user_ID):
     driver.find_element(By.NAME,"caType").send_keys("券商網路下單憑證")
     time.sleep(1*time_speed)
     driver.find_element(By.ID,'loginBtn').click()
+    # click_element(driver.find_element(By.ID,'loginBtn'))
     print("logining please wait...(usually takes 10-60 seconds)")
     
     ######################################################################
@@ -173,6 +211,7 @@ def autoLogin(user_ID):
 
     try:
         driver.find_element(By.ID,"comfirmDialog_okBtn").click()
+        # click_element(driver.find_element(By.ID,"comfirmDialog_okBtn"))
         time.sleep(5*time_speed)
     except:
         pass
@@ -193,8 +232,8 @@ def autoLogin(user_ID):
                 thd=threading.Thread(target = show_msg_on_driver, args=("請閱讀條款·····", 0, "請閱讀條款·····"))
                 thd.start()
                 time.sleep(5)
-                #driver.find_element(By.CSS_SELECTOR,'a[class="btnAgree btn-style btn-b btn-lg"]').click()
                 driver.find_element(By.CSS_SELECTOR,'a[class="btnAgree btn-style btn-b btn-lg"]').click()
+                # click_element(driver.find_element(By.CSS_SELECTOR,'a[class="btnAgree btn-style btn-b btn-lg"]'))
                 time.sleep(5*time_speed)
         except:
             pass
@@ -205,6 +244,7 @@ def autoLogin(user_ID):
                 thd.start()
                 time.sleep(5)
                 driver.find_element(By.NAME,'btn1').click()
+                # click_element(driver.find_element(By.NAME,'btn1'))
                 time.sleep(5*time_speed)
         except:
             pass
@@ -214,6 +254,7 @@ def autoLogin(user_ID):
             for g in driver.find_elements(By.CSS_SELECTOR,'a[onclick="go();"]'):
                 try:
                     g.click()
+                    # click_element(g)
                 except:
                     continue
             time.sleep(2*time_speed)
@@ -222,6 +263,7 @@ def autoLogin(user_ID):
 
         try:
             driver.find_element(By.ID,"comfirmDialog_okBtn").click()
+            # click_element(driver.find_element(By.ID,"comfirmDialog_okBtn"))
             time.sleep(5*time_speed)
         except:
             pass
@@ -268,12 +310,13 @@ def autoLogin(user_ID):
 def voting():
     global default_vote, manual_vote, accept_list, opposite_list, abstain_list
     while(True):
-        
+        time.sleep(1) # slower but reduce possibility to be detected as robot
         #### 投票已完成，回清單
         if "投票已完成" in driver.find_element(By.TAG_NAME,'table').text:
             #print("投票已完成")
             time.sleep(3*time_speed)
             driver.find_element(By.CSS_SELECTOR,'button[onclick="doProcess();"]').click()
+            # click_element(driver.find_element(By.CSS_SELECTOR,'button[onclick="doProcess();"]'))
             break
 
 
@@ -284,6 +327,7 @@ def voting():
                     try:
                         #全部贊成 #有空格
                         driver.find_element(By.CSS_SELECTOR,'table.c-votelist_docSection tr:nth-child(2) td:nth-child(2) a:nth-child(1)').click()
+                        # click_element(driver.find_element(By.CSS_SELECTOR,'table.c-votelist_docSection tr:nth-child(2) td:nth-child(2) a:nth-child(1)'))
                         time.sleep(2*time_speed)
                         #break
                     except Exception as e:
@@ -295,6 +339,7 @@ def voting():
                     try:
                         #全部反對 #有空格
                         driver.find_element(By.CSS_SELECTOR,'table.c-votelist_docSection tr:nth-child(2) td:nth-child(2) a:nth-child(2)').click()
+                        # click_element(driver.find_element(By.CSS_SELECTOR,'table.c-votelist_docSection tr:nth-child(2) td:nth-child(2) a:nth-child(2)'))
                         time.sleep(2*time_speed)
                         #break
                     except Exception as e:
@@ -306,6 +351,7 @@ def voting():
                     try:
                         #全部棄權 #有空格
                         driver.find_element(By.CSS_SELECTOR,'table.c-votelist_docSection tr:nth-child(2) td:nth-child(2) a:nth-child(3)').click()
+                        # click_element(driver.find_element(By.CSS_SELECTOR,'table.c-votelist_docSection tr:nth-child(2) td:nth-child(2) a:nth-child(3)'))
                         time.sleep(2*time_speed)
                         #break
                     except Exception as e:
@@ -330,16 +376,19 @@ def voting():
                         if any(keyword in statement for keyword in accept_list): # accept
                             #print("accept")
                             i.find_element(By.CSS_SELECTOR,'input[value="A"]').click()
+                            # click_element(i.find_element(By.CSS_SELECTOR,'input[value="A"]'))
                             print("-->accept")
                             time.sleep(0.5*time_speed)
                         elif any(keyword in statement for keyword in opposite_list): # opposite
                             #print("opposite")
                             i.find_element(By.CSS_SELECTOR,'input[value="O"]').click()
+                            # click_element(i.find_element(By.CSS_SELECTOR,'input[value="O"]'))
                             print("-->opposite")
                             time.sleep(0.5*time_speed)
                         elif any(keyword in statement for keyword in abstain_list): # abstain
                             #print("abstain")
                             i.find_element(By.CSS_SELECTOR,'input[value="C"]').click()
+                            # click_element(i.find_element(By.CSS_SELECTOR,'input[value="C"]'))
                             print("-->abstain")
                             time.sleep(0.5*time_speed)
                     except Exception as e:
@@ -352,10 +401,13 @@ def voting():
         try:
             #全部棄權(候選人投票)
             driver.find_element(By.CSS_SELECTOR,'a[href="javascript:giveUp();"]').click() #全部放棄
+            # click_element(driver.find_element(By.CSS_SELECTOR,'a[href="javascript:giveUp();"]'))
             time.sleep(3*time_speed)
             #driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.checkVote(); return false;"]').click() #下一步
+            # click_element(driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.checkVote(); return false;"]'))
             #time.sleep(3*time_speed)
             #driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.ignoreVote();voteObj.goNext(); return false;"').click() #小視窗下一步
+            # click_element(driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.ignoreVote();voteObj.goNext(); return false;"]'))
             #time.sleep(3*time_speed)
         except:
             pass
@@ -364,6 +416,7 @@ def voting():
         try:
             #下一步
             driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.checkVote(); return false;"]').click()
+            # click_element(driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.checkVote(); return false;"]'))
             time.sleep(3*time_speed)
             continue
         except:
@@ -373,12 +426,14 @@ def voting():
         try:
             #小視窗下一步(棄權警告視窗1)
             driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.ignoreVote();voteObj.goNext(); return false;"]').click()
+            # click_element(driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.ignoreVote();voteObj.goNext(); return false;"]'))
             time.sleep(3*time_speed)
         except:
             pass
         try:
             #小視窗下一步(棄權警告視窗2)
             driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.ignoreVote();voteObj.goNext();return false;"]').click()
+            # click_element(driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.ignoreVote();voteObj.goNext();return false;"]'))
             time.sleep(3*time_speed)
         except:
             pass
@@ -390,7 +445,9 @@ def voting():
                 #thd=threading.Thread(target = show_msg_on_driver, args=("預投票結果如下，如需要修改，請回主頁點選修改", 10, "投票完成"))
                 #thd.start()
                 #time.sleep(10)
+                time.sleep(3*time_speed)
                 driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.checkMeetingPartner(); return false;"]').click()
+                # click_element(driver.find_element(By.CSS_SELECTOR,'button[onclick="voteObj.checkMeetingPartner(); return false;"]'))
                 #time.sleep(6)
                 time.sleep(3*time_speed)
         except:
@@ -404,6 +461,7 @@ def voting():
                 thd.start()
                 time.sleep(5)
                 driver.find_element(By.CSS_SELECTOR,'button[onclick="$.modal.close();return false;"]').click()
+                # click_element(driver.find_element(By.CSS_SELECTOR,'button[onclick="$.modal.close();return false;"]'))
                 thd=threading.Thread(target = show_msg_on_driver, args=("腳本等待中", 30, "等待結束"))
                 thd.start()
                 time.sleep(1)
@@ -437,183 +495,217 @@ def voting():
     return
 
 def autovote(user_ID):
+    """
+    Returns: 0 for success, 1 for error
+    """
     global driver, voteinfolist
-    driver.get("https://stockservices.tdcc.com.tw/evote/shareholder/000/tc_estock_welshas.html")
-    time.sleep(2*time_speed)
-    while(True):
-        try:
-            driver.find_element(By.NAME,'qryStockId')
-            break
-        except:
-            time.sleep(2*time_speed)
-    #自動投票
-    print("------開始投票------")
-    while(True):
-        if "未投票" in driver.find_elements(By.TAG_NAME,'tr')[1].text:
-            print(driver.find_elements(By.TAG_NAME,'tr')[1].text)
-            voteinfolist[user_ID].append(driver.find_elements(By.TAG_NAME,'tr')[1].text.split(" ")[0])
-            #print(driver.find_elements(By.TAG_NAME,'tr')[1].text)
-            driver.find_elements(By.TAG_NAME,'tr')[1].find_elements(By.TAG_NAME,'td')[3].find_elements(By.TAG_NAME,'a')[0].click()
-            time.sleep(1)
+    try:
+        driver.get("https://stockservices.tdcc.com.tw/evote/shareholder/000/tc_estock_welshas.html")
+        time.sleep(2*time_speed)
+        while(True):
             try:
-                #出現訊息持有其他特別股
-                driver.find_element(By.ID,"msgDialog_okBtn").click()
+                driver.find_element(By.NAME,'qryStockId')
+                break
             except:
-                pass
-            time.sleep(2)
-            #紀錄股東資訊
-            #附加上股東戶名、股東戶號、表決權總數
-            #for i in driver.find_element(By.TAG_NAME,'tbody').find_elements(By.TAG_NAME,'tr'):
-            #    #print(i.text.split(" "))
-            #    voteinfo.append(i.text.split(" ")[1])
-            voting()
+                time.sleep(2*time_speed)
+        print("------開始投票------")
+        while(True):
             try:
-                if "系統操作逾時" in driver.find_element(By.TAG_NAME,"form").text:
-                    print("系統操作逾時，請關閉程式重新開啟")
+                if "未投票" in driver.find_elements(By.TAG_NAME,'tr')[1].text:
+                    print(driver.find_elements(By.TAG_NAME,'tr')[1].text)
+                    voteinfolist[user_ID].append(driver.find_elements(By.TAG_NAME,'tr')[1].text.split(" ")[0])
+                    driver.find_elements(By.TAG_NAME,'tr')[1].find_elements(By.TAG_NAME,'td')[3].find_elements(By.TAG_NAME,'a')[0].click()
+                    # click_element(driver.find_elements(By.TAG_NAME,'tr')[1].find_elements(By.TAG_NAME,'td')[3].find_elements(By.TAG_NAME,'a')[0])
+                    time.sleep(1)
+                    try:
+                        driver.find_element(By.ID,"msgDialog_okBtn").click()
+                        # click_element(driver.find_element(By.ID,"msgDialog_okBtn"))
+                    except:
+                        pass
                     time.sleep(2)
-                    continue
-                if "系統維護中" in driver.find_element(By.TAG_NAME,"form").text:
-                    print("系統維護中，請等待維護結束後再重新執行程式")
+                    voting()
+                    try:
+                        if "系統操作逾時" in driver.find_element(By.TAG_NAME,"form").text:
+                            print("系統操作逾時，請關閉程式重新開啟")
+                            time.sleep(2)
+                            continue
+                        if "系統維護中" in driver.find_element(By.TAG_NAME,"form").text:
+                            print("系統維護中，請等待維護結束後再重新執行程式")
+                            time.sleep(2)
+                            input("press enter to exit....")
+                            logout()
+                            driver.quit()
+                            sys.exit()
+                    except:
+                        pass
+                    write_voteinfolist(voteinfolist)
                     time.sleep(2)
-                    input("press enter to exit....")
-                    logout()
-                    driver.quit()
-                    sys.exit()
-                
-                
-            except:
-                pass
-
-            #voteinfo.append(getdatetime())
-            #voteinfolist.append(voteinfo)
-            #print(voteinfo)
-            write_voteinfolist(voteinfolist)
-            time.sleep(2)
-        else:
-            print("------投票完畢 共"+ str(len(voteinfolist[user_ID])) +"筆------")
-            break
-
-
+                else:
+                    print("------投票完畢 共"+ str(len(voteinfolist[user_ID])) +"筆------")
+                    break
+            except Exception as e:
+                print(f"autovote error: {e}")
+                return 1
+        return 0
+    except Exception as e:
+        print(f"autovote failed: {e}")
+        return 1
 
 # wait for review                    
 def screenshot(user_id,info):
     """
-    save screenshot to "screenshots" directory based on the info List.
-    :param info:  :
-        info[0]:  str  - stock_id
-        info[1]:  str  - stock_name
+    save screenshot to the appropriate directory based on screenshot_mode.
+    info[0]: stock_id, info[1]: stock_name, info[2]: stock_account_id
+    Returns: 0 for success, 1 for failure
     """
-    global base_path
-    driver.execute_script("document.body.style.zoom = '120%'")
-    
-    # adjust the window size
-    while(True):
-        try:
-            driver.find_element(By.CSS_SELECTOR,'div[class="u-width--100 u-t_align--right"]')
-            break
-        except:
-            time.sleep(1)
-            continue
-    votedate_pic = driver.find_element(By.CSS_SELECTOR,'div[class="u-width--100 u-t_align--right"]')
-    driver.set_window_size(516, votedate_pic.location['y']+votedate_pic.size['height']+370)
-    
-    # scroll to the top of the page
-    for _ in range(5):
-        js="var q=document.documentElement.scrollTop=0"
-        driver.execute_script(js) 
+    global base_path, screenshot_mode
+    try:
+        driver.execute_script("document.body.style.zoom = '120%'")
+        # adjust the window size
+        while(True):
+            try:
+                driver.find_element(By.CSS_SELECTOR,'div[class="u-width--100 u-t_align--right"]')
+                break
+            except:
+                time.sleep(1)
+                continue
+        votedate_pic = driver.find_element(By.CSS_SELECTOR,'div[class="u-width--100 u-t_align--right"]')
+        driver.set_window_size(516, votedate_pic.location['y']+votedate_pic.size['height']+370)
+        # scroll to the top of the page
+        for _ in range(5):
+            js="var q=document.documentElement.scrollTop=0"
+            driver.execute_script(js) 
 
-    if not os.path.exists(base_path+str(user_id)):
-        # if the directory does not exist, create it
-        os.makedirs(base_path+str(user_id))
-
-    driver.save_screenshot(base_path+str(user_id)+"/"+ info[0] +"_"+ info[1].replace("*","") +".png")
-    driver.execute_script("document.body.style.zoom = '100%'")
-
+        if screenshot_mode == 1:
+            if not os.path.exists(base_path+str(user_id)):
+                os.makedirs(base_path+str(user_id))
+            driver.save_screenshot(base_path+str(user_id)+"/"+ info[0] +"_"+ info[1].replace("*","") +".png")
+        elif screenshot_mode == 2:
+            if not os.path.exists(base_path):
+                os.makedirs(base_path)
+            stock_account_id = info[2]
+            filename = f"{info[0]}_{info[1].replace('*','')}_{stock_account_id}.png"
+            driver.save_screenshot(base_path +"/all/"+ filename)
+        elif screenshot_mode == 3:
+            if not os.path.exists(base_path):
+                os.makedirs(base_path)
+            filename = f"{info[0]}_{info[1].replace('*','')}_{user_id}.png"
+            driver.save_screenshot(base_path+"/all/" + filename)
+        driver.execute_script("document.body.style.zoom = '100%'")
+        return 0
+    except Exception as e:
+        print(f"screenshot failed: {e}")
+        return 1
 
 def auto_screenshot(user_id, stock_id):
     """
     take screenshot of the stock_id
     bring driver to correct page
+    Returns: 0 for success, 1 for failure, 2 for not found
     """
-    global driver, voteinfolist
-
-    driver.get("https://stockservices.tdcc.com.tw/evote/shareholder/000/tc_estock_welshas.html")
-    time.sleep(2*time_speed)
-    while(True):
-        try:
-            driver.find_element(By.NAME,'qryStockId')
-            break
-        except:
-            time.sleep(2*time_speed)
-    # search stock_id
-    time.sleep(1*time_speed)
-    driver.find_element(By.NAME,'qryStockId').clear()
-    time.sleep(0.5*time_speed)
-    driver.find_element(By.NAME,'qryStockId').send_keys(stock_id)
-    time.sleep(0.9*time_speed)
-    driver.find_element(By.CSS_SELECTOR,'a[onclick="qryByStockId();"]').click()
-    time.sleep(0.9*time_speed)
-
-    # stock_id, stock_name
-    voteinfo = []
-    while(True):
-        try:
-            voteinfo.extend(driver.find_elements(By.TAG_NAME,'tr')[1].text.split(" ")[0:2])
-            break
-        except IndexError:
-            time.sleep(2)
-            
-    # click search button(should be only one after search)
-    for i in driver.find_elements(By.TAG_NAME,'tr'):
-        if(debug>=5):
-            print(i.text)
-        if "修改" in i.text: #修改 查詢 都可按
-            i.find_elements(By.TAG_NAME,'td')[3].find_elements(By.TAG_NAME,'a')[1].click() # 按 查詢
-            break
-        elif "修改" not in i.text and "查詢" in i.text: #不可修改時
-            tmp=0
-            for j in i.find_elements(By.TAG_NAME,'td')[3].find_elements(By.TAG_NAME,'a'):
-                if "查詢" in j.text:
-                    j.click()
-                    tmp=1
-                    break
-            if tmp==1:
-                break
-            
-    else: 
-        print("seems like no search result for: ", stock_id)
-        return
-
-    time.sleep(0.6*time_speed)
+    global driver, voteinfolist, screenshot_mode
     try:
-        #出現訊息持有其他特別股
-        driver.find_element(By.ID,"msgDialog_okBtn").click()
-        time.sleep(0.6*time_speed)
-    except Exception as e:
-        #print("error: ",e)
-        pass
-    time.sleep(1*time_speed)
-    # #附加上股東戶名、股東戶號、表決權總數(not use)
-    # for i in driver.find_element(By.TAG_NAME,'tbody').find_elements(By.TAG_NAME,'tr'):
-    #     print(i.text.split(" "))
-    #     voteinfo.append(i.text.split(" ")[1])
-    
-    screenshot(user_id,voteinfo)
-    # screenshot success, delete record
-    voteinfolist[user_id].remove(stock_id)
-    # write to file
-    write_voteinfolist(voteinfolist)
-    print(f"{voteinfo[0]} {voteinfo[1]} 截圖成功")
-    #返回
-    #driver.find_element(By.CSS_SELECTOR,'button[onclick="back(); return false;"]').click()
-    driver.execute_script("arguments[0].click();", driver.find_element(By.CSS_SELECTOR,'button[onclick="back(); return false;"]'))
-    time.sleep(0.5*time_speed)
+        driver.get("https://stockservices.tdcc.com.tw/evote/shareholder/000/tc_estock_welshas.html")
+        time.sleep(2*time_speed)
+        while(True):
+            try:
+                driver.find_element(By.NAME,'qryStockId')
+                break
+            except:
+                time.sleep(2*time_speed)
+        # search stock_id
+        time.sleep(1*time_speed)
+        driver.find_element(By.NAME,'qryStockId').clear()
+        time.sleep(0.5*time_speed)
+        driver.find_element(By.NAME,'qryStockId').send_keys(stock_id)
+        time.sleep(0.9*time_speed)
+        driver.find_element(By.CSS_SELECTOR,'a[onclick="qryByStockId();"]').click()
+        # click_element(driver.find_element(By.CSS_SELECTOR,'a[onclick="qryByStockId();"]'))
+        time.sleep(0.9*time_speed)
 
+        # stock_id, stock_name
+        voteinfo = []
+        while(True):
+            try:
+                voteinfo.extend(driver.find_elements(By.TAG_NAME,'tr')[1].text.split(" ")[0:2])
+                break   
+            except IndexError:
+                time.sleep(2)
+                
+        # click search button(should be only one after search)
+        for i in driver.find_elements(By.TAG_NAME,'tr'):
+            if(debug>=5):
+                print(i.text)
+            if "修改" in i.text:
+                i.find_elements(By.TAG_NAME,'td')[3].find_elements(By.TAG_NAME,'a')[1].click()
+                # click_element(i.find_elements(By.TAG_NAME,'td')[3].find_elements(By.TAG_NAME,'a')[1])
+                break
+            elif "修改" not in i.text and "查詢" in i.text:
+                tmp=0
+                for j in i.find_elements(By.TAG_NAME,'td')[3].find_elements(By.TAG_NAME,'a'):
+                    if "查詢" in j.text:
+                        j.click()
+                        # click_element(j)
+                        tmp=1
+                        break
+                if tmp==1:
+                    break
+        else: 
+            print("seems like no search result for: ", stock_id)
+            return 2
+
+        time.sleep(0.6*time_speed)
+        try:
+            driver.find_element(By.ID,"msgDialog_okBtn").click()
+            # click_element(driver.find_element(By.ID,"msgDialog_okBtn"))
+            time.sleep(0.6*time_speed)
+        except Exception as e:
+            pass
+        time.sleep(1*time_speed)
+        # 附加上 股東戶號
+        try:
+            # Try to get 戶號 from the table
+            trs = driver.find_element(By.TAG_NAME,'tbody').find_elements(By.TAG_NAME,'tr')
+            found = False
+            for tr in trs:
+                if "戶號" in tr.find_element(By.TAG_NAME,'th').text:
+                    stock_account_id = tr.find_element(By.TAG_NAME,'td').text
+                    voteinfo.append(stock_account_id)
+                    found = True
+                    break
+                if found:
+                    break
+            if not found:
+                voteinfo.append("unknown")
+        except Exception as e:
+            voteinfo.append("unknown")
+        ret = screenshot(user_id, voteinfo)
+        if ret == 0:
+            try:
+                voteinfolist[user_id].remove(stock_id)
+                write_voteinfolist(voteinfolist)
+                print(f"{voteinfo[0]} {voteinfo[1]} 截圖成功")
+            except Exception as e:
+                print(f"Failed to update voteinfolist: {e}")
+                return 1
+        else:
+            print(f"{voteinfo[0]} {voteinfo[1]} 截圖失敗")
+            return 1
+        #返回
+        try:
+            driver.execute_script("arguments[0].click();", driver.find_element(By.CSS_SELECTOR,'button[onclick="back(); return false;"]'))
+            time.sleep(0.5*time_speed)
+        except Exception as e:
+            print(f"Failed to return: {e}")
+        return 0
+    except Exception as e:
+        print(f"auto_screenshot failed: {e}")
+        return 1
 
 def write_voteinfolist(voteinfolist):
     base_path = "./screenshots/"
-    with open(base_path+"id_list.txt", 'w', encoding='utf-8') as f:
-        f.writelines([str(id)+"\n" for id in voteinfolist.keys()])
+    # with open(base_path+"id_list.txt", 'w', encoding='utf-8') as f:
+    #     f.writelines([str(id)+"\n" for id in voteinfolist.keys()])
 
     for id, stock_id_list in voteinfolist.items():
         path = base_path + id + "/"
@@ -628,6 +720,8 @@ def read_voteinfolist(voteinfolist):
     # ls of all folders name in the directory
     folder_list = [f for f in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, f))]
     for folder in folder_list:
+        if folder == "all":
+            continue
         path = base_path + folder + "/"
         if not os.path.exists(path + "imcomplele_screenshot_list.txt"):
             # if the file does not exist, create it
@@ -825,11 +919,12 @@ def vi_vote_setting():
 
 def write_program_setting():
     import hashlib
-    global time_speed, shareholderIDs
+    global time_speed, shareholderIDs, screenshot_mode
     with open('./program_setting.conf', 'w', encoding = 'utf8') as f:
-        f.write("time_speed:::"+str(int(time_speed*2))+"\n")
-        f.write("shareholderIDs:::"+"|/|".join(shareholderIDs)+"\n")
-        content=str(time_speed*2)+"|/|"+"@".join(shareholderIDs)
+        f.write("screenshot_mode:::" + str(screenshot_mode) + "\n")
+        f.write("time_speed:::" + str(int(time_speed*2)) + "\n")
+        f.write("shareholderIDs:::" + "|/|".join(shareholderIDs) + "\n")
+        content= str(screenshot_mode) + "|/|" + str(time_speed*2) + "|/|" + "@".join(shareholderIDs)
         # hash the content
         hash_object = hashlib.sha256(content.encode())
         hex_dig = hash_object.hexdigest()
@@ -837,20 +932,22 @@ def write_program_setting():
 
 def read_program_setting():
     import hashlib
-    global time_speed, shareholderIDs
+    global time_speed, shareholderIDs, screenshot_mode
     hash_value = ""
 
     with open('./program_setting.conf', 'r', encoding = 'utf8') as f:
         settings = f.readlines()
     for line in settings:
-        if "time_speed:::" in line:
+        if "screenshot_mode:::" in line:
+            screenshot_mode=int(line.split(":::")[-1].replace("\n","").replace("\ufeff",""))
+        elif "time_speed:::" in line:
             time_speed=(int(line.split(":::")[-1].replace("\n","").replace("\ufeff","")))/2
         elif "shareholderIDs:::" in line:
             shareholderIDs=line.split(":::")[-1].replace("\n","").replace("\ufeff","").split("|/|")
         elif "hash:::" in line:
             hash_value = line.split(":::")[-1].replace("\n","").replace("\ufeff","")
     # check hash value
-    content=str(time_speed*2)+"|/|"+"@".join(shareholderIDs)
+    content= str(screenshot_mode) + "|/|" + str(time_speed*2) + "|/|" + "@".join(shareholderIDs)
     # hash the content
     hash_object = hashlib.sha256(content.encode())
     hex_dig = hash_object.hexdigest()
@@ -867,9 +964,12 @@ def read_program_setting():
         sys.exit()
 
 def vi_program_setting():
-    global time_speed, shareholderIDs
+    global time_speed, shareholderIDs, screenshot_mode
     time_speed=2
     shareholderIDs=[]
+
+    # set screenshot mode
+    screenshot_mode = choose_screenshot_mode()
 
     # set time speed
     while(True):
@@ -907,6 +1007,8 @@ def vi_program_setting():
                     # should not happen
                     raise ValueError(f"Unexpected id_check_result: {id_check_result}")
     
+    # print the setting
+    print("screenshot mode: ",str(screenshot_mode) + ":"+["Current structure (screenshots per user ID folder)","All screenshots in one folder, filename {stock_id}_{stock_name}_{stock_account_id}.png","All screenshots in one folder, filename {stock_id}_{stock_name}_{user_id}.png"][screenshot_mode-1])
     print("time speed: ",time_speed*2)
     print("shareholder number: ",len(shareholderIDs))
     print("shareholder ID: ",shareholderIDs)
@@ -929,7 +1031,7 @@ def vi_program_setting():
         return
 
 def load_settings():
-    global time_speed, shareholderIDs
+    global time_speed, shareholderIDs, screenshot_mode
     global manual_vote, accept_list, opposite_list, abstain_list, default_vote
     
     if not os.path.exists('./vote_setting.conf'):
@@ -949,6 +1051,7 @@ def load_settings():
     while(True):
         #print("setting found, use modified setting")
         print("================")
+        print("screenshot mode: ",str(screenshot_mode) + ":"+["Current structure (screenshots per user ID folder)","All screenshots in one folder, filename {stock_id}_{stock_name}_{stock_account_id}.png","All screenshots in one folder, filename {stock_id}_{stock_name}_{user_id}.png"][screenshot_mode-1])
         print("run speed: ",time_speed*2)
         print("shareholder number: ",len(shareholderIDs))
         print("shareholder ID: ",shareholderIDs)
@@ -986,7 +1089,20 @@ def load_settings():
         vi_vote_setting()
         input("press enter to exit then run again")
         sys.exit()
-  
+
+def choose_screenshot_mode():
+    print("Choose screenshot file structure:")
+    print("1. Current structure (screenshots per user ID folder)")
+    print("2. All screenshots in one folder, filename {stock_id}_{stock_name}_{stock_account_id}.png")
+    print("3. All screenshots in one folder, filename {stock_id}_{stock_name}_{user_id}.png")
+    while True:
+        mode = input("Please select (1/2/3): ").strip()
+        if mode in ["1", "2", "3"]:
+            if(mode in ["2","3"]):
+                if not os.path.exists(base_path+"/all/"):
+                    os.makedirs(base_path+"/all/")
+            return int(mode)
+        print("Please enter 1 or 2 or 3.")
 
 ###############################################    START    ######################################################
 #pyinstaller -D .\股東e票通輔助工具.py 打包成exe
@@ -996,6 +1112,7 @@ service = Service(EdgeChromiumDriverManager().install())  # use webdriver_manage
 driver=""
 shareholderIDs=[]
 time_speed=0
+screenshot_mode = 1
 manual_vote=False #是否自訂部分投票
 default_vote="" #預設投票方式
 accept_list=[]
@@ -1003,6 +1120,7 @@ opposite_list=[]
 abstain_list=[]
 
 voteinfolist={}
+
 #build working directory
 base_path="./screenshots/"
 if not os.path.exists(base_path):
@@ -1020,6 +1138,7 @@ for id, stock_id_list in voteinfolist.items():
 if len(list(voteinfolist.keys()))>0:
     check=input("Last time have unfinished screenshot, do you want to continue? (Y/N) :").upper()
     if check=="Y":
+        screenshot_mode = choose_screenshot_mode()
         print("--------- continue take screenshot---------")
         driver = webdriver.Edge(service=service) # use the installed driver
         for id in voteinfolist.keys():
@@ -1027,12 +1146,15 @@ if len(list(voteinfolist.keys()))>0:
             print("Stocks: ",voteinfolist[id])
             autoLogin(id)
             while(len(voteinfolist[id])>0):
-                auto_screenshot(id,voteinfolist[id][0])
+                result = auto_screenshot(id,voteinfolist[id][0])
+                if result != 0:
+                    print(f"auto_screenshot failed for {voteinfolist[id][0]}")
         print("-----  finish take screenshot  -----")
         logout()
         driver.quit()
 
 ##################################################################
+
 
 while(True):
     print("-------------------------------")
@@ -1065,16 +1187,21 @@ while(True):
             driver = webdriver.Edge(service=service) # use the installed driver
             # open a test page (can be local or online HTML)
             driver.get("file:///" + os.path.abspath("./statement.html"))
-            time.sleep(10)
+            time.sleep(5)
             autoLogin(user_id)
-            autovote(user_id)
+            result = autovote(user_id)
+            if result != 0:
+                print(f"autovote failed for {user_id}")
             # check if the page is loaded
             while(len(voteinfolist[user_id])>0):
-                auto_screenshot(user_id, voteinfolist[user_id][0])
+                result = auto_screenshot(user_id, voteinfolist[user_id][0])
+                if result != 0:
+                    print(f"auto_screenshot failed for {voteinfolist[user_id][0]}")
             print("------ finished ------")
             logout()
             driver.quit()
     elif check=="2":
+        screenshot_mode = choose_screenshot_mode()
         while(True):
             id=input("Please enter the ID number to take screenshots:(-1 to exit) ")
             if id == "-1":
@@ -1083,8 +1210,7 @@ while(True):
                 sys.exit()
             if(id_check(id) != 0):
                 print("ID number is not valid")
-                input("press Enter to exit")
-                sys.exit()
+                continue
                 
             driver = webdriver.Edge(service=service) # use the installed driver
             while(True):
@@ -1109,7 +1235,7 @@ while(True):
                     if stock_list == "-1":
                         break
                     stock_list=stock_list.replace(" ","").split(",")
-                    stock_list= [i for i in stock_list if i not in [""," ","\n"] and i.isdigit() and i>0]
+                    stock_list= [i for i in stock_list if i not in [""," ","\n"] and i.isdigit() and int(i)>0]
                     if len(stock_list) == 0:
                         print("no stock ID found")
                         continue
@@ -1118,7 +1244,9 @@ while(True):
                         voteinfolist[id]=[]
                     voteinfolist[id].extend(stock_list)
                     for stock_id in stock_list:
-                        auto_screenshot(id, stock_id)
+                        result = auto_screenshot(id, stock_id)
+                        if result != 0:
+                            print(f"auto_screenshot failed for {stock_id}")
                 except Exception as e:
                     print("error: ",e)
                     continue
