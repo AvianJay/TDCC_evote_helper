@@ -18,7 +18,12 @@ import sys
 import json
 import threading
 import random
+no_confirm= False
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--log-level=3"
+
+if __name__ == "__main__":
+    if len(sys.argv)==2 and (sys.argv[1]=="-y" or sys.argv[1] =="--yes" ): # for schedule task, use exist config file
+        no_confirm= True
 
 #cd to the directory of the script
 def get_executable_dir():
@@ -1056,6 +1061,9 @@ def load_settings():
         print("shareholder number: ",len(shareholderIDs))
         print("shareholder ID: ",shareholderIDs)
         print("================")
+        if no_confirm == True:
+            tmp = "y"
+            break
         tmp=input("do you want to use the above setting?(y/n)?")
         if tmp.lower() in ["y","n"]:
             break
@@ -1078,6 +1086,9 @@ def load_settings():
         print("opposite keyword: ",opposite_list)
         print("abstain keyword: ",abstain_list)
         print("================")
+        if no_confirm == True:
+            tmp = "y"
+            break
         tmp=input("do you want to use the above manual vote setting?(y/n)?")
         if tmp.lower() in ["y","n"]:
             break
@@ -1136,9 +1147,12 @@ for id, stock_id_list in voteinfolist.items():
     if len(stock_id_list) == 0:
         del voteinfolist[id]
 if len(list(voteinfolist.keys()))>0:
-    check=input("Last time have unfinished screenshot, do you want to continue? (Y/N) :").upper()
+    if(no_confirm == True):
+        check = "Y"
+    else:
+        check=input("Last time have unfinished screenshot, do you want to continue? (Y/N) :").upper()
     if check=="Y":
-        screenshot_mode = choose_screenshot_mode()
+        load_settings() # for screenshot mode
         print("--------- continue take screenshot---------")
         driver = webdriver.Edge(service=service) # use the installed driver
         for id in voteinfolist.keys():
@@ -1155,24 +1169,28 @@ if len(list(voteinfolist.keys()))>0:
 
 ##################################################################
 
-
+tmp_flag =0
 while(True):
     print("-------------------------------")
     print("(1) all accounts vote+take screenshot")
     print("(2) take screenshot of specific stocks")
     print("(3) exit")
     print("-------------------------------")
-    check=input("please select: ")
+    if no_confirm == True:
+        check = "1"
+    else:
+        check=input("please select: ")
     if check not in ["1","2","3"]:
         print("please select 1, 2 or 3")
         print("please restart the program.......")
         input("press Enter to exit")
         sys.exit()
-    if check=="3":
+    if check=="3" or (no_confirm==True and tmp_flag == 1):
         print("exit")
         input("press Enter to exit")
         sys.exit()
     if check=="1":
+        tmp_flag = 1
         load_settings()
         # build working directory
         for id in shareholderIDs:
