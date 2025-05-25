@@ -1,6 +1,6 @@
 # TDCC Helper Tool
 
-This repository provides tools to assist shareholders with the TDCC electronic voting process, including automated voting and screenshot features.
+This repository provides tools to assist shareholders with the TDCC electronic voting process, including automated voting and screenshot features(currently only support Edge browzer).
 
 ---
 
@@ -10,11 +10,21 @@ This repository provides tools to assist shareholders with the TDCC electronic v
     - [Usage](#usage)
       - [1. rename\_tool](#1-rename_tool)
       - [2. TDCC\_helper\_tool](#2-tdcc_helper_tool)
+    - [Screenshot File Format Selection (Screenshot Mode)](#screenshot-file-format-selection-screenshot-mode)
+    - [Feedback, Suggestions, and Bug Reports](#feedback-suggestions-and-bug-reports)
+    - [Contributing](#contributing)
+    - [License and Development Notice](#license-and-development-notice)
+    - [Environment Information](#environment-information)
   - [中文說明（繁體）](#中文說明繁體)
     - [建置指令](#建置指令)
     - [使用說明](#使用說明)
       - [1. rename\_tool](#1-rename_tool-1)
       - [2. TDCC\_helper\_tool](#2-tdcc_helper_tool-1)
+    - [截圖檔案格式選擇（Screenshot Mode）](#截圖檔案格式選擇screenshot-mode)
+    - [意見回饋、建議與問題回報](#意見回饋建議與問題回報)
+    - [參與開發說明](#參與開發說明)
+    - [授權與開發注意事項](#授權與開發注意事項)
+    - [環境資訊](#環境資訊)
 
 
 ---
@@ -38,7 +48,7 @@ pyinstaller -F ./rename_tool.py
 - Double-click the executable or run the script with Python.
 
 **What it does:**
-- Moves and renames all PNG files from `./screenshots/{id}/*.png` to `./screenshots/all/*_{id}.png`.
+- Moves and renames all PNG files from `./screenshots/{user_id}/*.png` to `./screenshots/all/*_{user_id}.png`.
 - This helps consolidate screenshots from different shareholder IDs into a single folder, with filenames indicating their original ID.
 
 ---
@@ -100,6 +110,72 @@ This program assists shareholders in the TDCC voting process, including automate
 
 ---
 
+### Screenshot File Format Selection (Screenshot Mode)
+
+During the initial setup or when reconfiguring, you will be prompted to select a screenshot file format (screenshot mode). This determines how your screenshots are organized and named.
+
+**Step-by-step selection:**
+1. When prompted:
+   ```
+   Choose screenshot file structure:
+   1. Current structure (screenshots per user ID folder)
+   2. All screenshots in one folder, filename {stock_id}_{stock_name}_{stock_account_id}.png
+   3. All screenshots in one folder, filename {stock_id}_{stock_name}_{user_id}.png
+   Please enter 1, 2, or 3:
+   ```
+2. Enter the number for your preferred mode and press Enter.
+   - Mode 1: Each user ID has its own folder (default)
+   - Mode 2: All screenshots in one folder, filename includes stock account ID
+   - Mode 3: All screenshots in one folder, filename includes user ID
+3. The tool will use this mode for all future screenshots until you change it again.
+
+---
+
+### Feedback, Suggestions, and Bug Reports
+
+We highly welcome your feedback, opinions, suggestions, and bug reports! You can:
+- Open an issue or start a discussion in this repository on GitHub
+- Contact me directly (see my GitHub profile for contact information)
+- Discuss in the Line community chat
+
+Your input helps make this tool better for everyone.
+
+---
+
+### Contributing
+
+Contributions are welcome! If you are a developer and want to help improve this project:
+1. Fork this repository on GitHub
+2. Create a new branch for your feature or fix
+3. Commit your changes and push to your fork
+4. Open a Pull Request (PR) to this repository
+
+For a step-by-step guide, see: https://docs.github.com/en/get-started/quickstart/contributing-to-projects
+
+---
+
+### License and Development Notice
+
+- Anyone is welcome to further develop or modify this program, **as long as**:
+  1. There is **no direct or indirect commercial use** (unless you have my explicit permission).
+  2. If you distribute a modified version elsewhere (without contributing back to this repository), you **must include a statement** that your version is based on this repository.
+
+Thank you for respecting these terms and for supporting open-source collaboration!
+
+---
+
+### Environment Information
+
+If you encounter issues running this program, here's environment versions. The following versions are known to work and recommended:
+
+- **Python:** 3.13.3
+- **PyInstaller:** 6.13.0
+- **pip:** 25.1.1
+- **selenium:** 4.32.0
+- **webdriver-manager:** 4.0.2
+
+---
+
 ## 中文說明（繁體）
 
 ### 建置指令
@@ -119,7 +195,7 @@ pyinstaller -F ./rename_tool.py
 - 直接雙擊執行檔或用 Python 執行腳本。
 
 **功能說明：**
-- 將 `./screenshots/{id}/*.png` 目錄下所有 PNG 檔案，移動並重新命名到 `./screenshots/all/` 資料夾，檔名格式為 `*_{id}.png`。
+- 將 `./screenshots/{user_id}/*.png` 目錄下所有 PNG 檔案，移動並重新命名到 `./screenshots/all/` 資料夾，檔名格式為 `*_{user_id}.png`。
 - 方便將不同股東 ID 的截圖集中管理，並保留來源 ID 資訊於檔名。
 
 ---
@@ -183,4 +259,63 @@ pyinstaller -F ./rename_tool.py
 
 ---
 
-如有建議或問題，歡迎於 GitHub 討論區提出。
+### 截圖檔案格式選擇（Screenshot Mode）
+
+首次設定或重新設定時，程式會詢問您選擇截圖檔案格式（screenshot mode），決定截圖的儲存方式與檔名。
+
+**選擇步驟：**
+1. 當程式詢問：
+   ```
+   Choose screenshot file structure:
+   1. Current structure (screenshots per user ID folder)
+   2. All screenshots in one folder, filename {stock_id}_{stock_name}_{stock_account_id}.png
+   3. All screenshots in one folder, filename {stock_id}_{stock_name}_{user_id}.png
+   Please enter 1, 2, or 3:
+   ```
+2. 輸入對應數字並按 Enter。
+   - 模式1：每個股東ID一個資料夾（預設）
+   - 模式2：所有截圖集中一個資料夾，檔名含股東帳號
+   - 模式3：所有截圖集中一個資料夾，檔名含身分證字號
+3. 之後所有截圖將依此模式儲存，除非重新設定。
+
+---
+
+### 意見回饋、建議與問題回報
+
+非常歡迎您提供任何意見、建議或回報問題！您可以：
+- 在本專案的 GitHub issue 或 discussion 區留言
+- 直接聯絡我（請參考我的 GitHub 個人頁面聯絡方式）
+- 在Line社群中討論
+
+您的回饋將有助於讓這個工具變得更好。
+
+---
+
+### 參與開發說明
+
+歡迎任何開發者參與本專案！如果您想貢獻程式碼：
+1. 先 fork 本專案到您的 GitHub 帳號
+2. 建立新分支進行開發或修正
+3. commit 並 push 到您的 fork
+4. 透過 Pull Request (PR) 回報到本專案
+
+詳細教學可參考：https://docs.github.com/zh-tw/get-started/quickstart/contributing-to-projects
+
+---
+
+### 授權與開發注意事項
+
+- 歡迎任何人進行二次開發或修改本程式，**但必須遵守以下條件**：
+  1. 不得直接或間接用於商業用途（除非明確取得本人同意）。
+  2. 若有其他分發（未回饋本專案），**必須明確標示**本程式是基於本專案開發。
+
+感謝您的尊重與支持，也歡迎大家共同推動開源合作！
+
+---
+### 環境資訊
+若您在執行程式時遇到問題，以下是已知可正常運作的環境版本：
+- **Python:** 3.13.3
+- **PyInstaller:** 6.13.0
+- **pip:** 25.1.1
+- **selenium:** 4.32.0
+- **webdriver-manager:** 4.0.2
