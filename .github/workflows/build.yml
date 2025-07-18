@@ -40,8 +40,8 @@ jobs:
     - name: Build Executable (Linux)
       if: runner.os == 'Linux'
       run: |
-        pyinstaller --noconfirm --distpath ./ --onefile --console --clean --add-data TDCC_helper_tool.py
-        pyinstaller --noconfirm --distpath ./ --onefile --console --clean --add-data rename_tool.py
+        pyinstaller --noconfirm --distpath ./ --onefile --console --clean TDCC_helper_tool.py
+        pyinstaller --noconfirm --distpath ./ --onefile --console --clean rename_tool.py
     - name: Upload Artifact (Windows)
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v4
