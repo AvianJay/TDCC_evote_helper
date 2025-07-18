@@ -1,6 +1,6 @@
 # TDCC Helper Tool
 
-This repository provides tools to assist shareholders with the TDCC electronic voting process, including automated voting and screenshot features(currently only support Edge browzer).
+This repository provides tools to assist shareholders with the TDCC electronic voting process, including automated voting and screenshot features(currently only support Edge browser).
 
 ---
 
