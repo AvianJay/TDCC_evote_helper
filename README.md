@@ -172,7 +172,7 @@ If you encounter issues running this program, here's environment versions. The f
 - **PyInstaller:** 6.13.0
 - **pip:** 25.1.1
 - **selenium:** 4.32.0
-- **webdriver-manager:** 4.0.2
+<!-- - **webdriver-manager:** 4.0.2 -->
 
 You can use `pip` to install the following dependencies.
 
