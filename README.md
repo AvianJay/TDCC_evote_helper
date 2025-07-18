@@ -174,6 +174,12 @@ If you encounter issues running this program, here's environment versions. The f
 - **selenium:** 4.32.0
 - **webdriver-manager:** 4.0.2
 
+You can use `pip` to install the following dependencies.
+
+```shell
+python3 -m pip install -r requirements.txt
+```
+
 ---
 
 ## 中文說明（繁體）
@@ -318,4 +324,8 @@ pyinstaller -F ./rename_tool.py
 - **PyInstaller:** 6.13.0
 - **pip:** 25.1.1
 - **selenium:** 4.32.0
-- **webdriver-manager:** 4.0.2
+<!-- - **webdriver-manager:** 4.0.2 -->
+你可以使用`pip`安裝這些依賴項：
+```shell
+python3 -m pip install -r requirements.txt
+```
