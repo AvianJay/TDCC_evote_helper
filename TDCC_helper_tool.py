@@ -6,8 +6,8 @@
 
 debug=0
 from selenium import webdriver
-from selenium.webdriver.edge.service import Service
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
+# from selenium.webdriver.edge.service import Service
+# from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.action_chains import ActionChains
@@ -66,9 +66,11 @@ with open('./statement.html', 'w', encoding='utf-8') as f:
     <p>This script is only for assisting shareholders to complete the voting process in advance</p>
     <p>Voting content can be modified at any time without affecting the shareholder's intention</p>
     <p>This script is not responsible for any consequences caused by the use of this script</p>
-    <p>For more information, please visit <a href=""><!-- your website link here --></a></p>
+    <!-- <p>For more information, please visit <a href="">your website link here</a></p> -->
     <br>
-    <p><strong> please enter the command in the black control window. The voting content can be modified at any time without affecting the shareholder's intention</strong></p>              
+    <p><strong> please enter the command in the black control window. The voting content can be modified at any time without affecting the shareholder's intention</strong></p>
+</body>
+</html>
     ''')
 
 def id_check(id_number:str) -> int:
@@ -1118,7 +1120,7 @@ def choose_screenshot_mode():
 ###############################################    START    ######################################################
 #pyinstaller -D .\股東e票通輔助工具.py 打包成exe
 
-service = Service(EdgeChromiumDriverManager().install())  # use webdriver_manager to install the driver
+# service = Service(EdgeChromiumDriverManager().install())  # use webdriver_manager to install the driver
 #driver = webdriver.Edge(service=service) # use the installed driver
 driver=""
 shareholderIDs=[]
@@ -1154,7 +1156,7 @@ if len(list(voteinfolist.keys()))>0:
     if check=="Y":
         load_settings() # for screenshot mode
         print("--------- continue take screenshot---------")
-        driver = webdriver.Edge(service=service) # use the installed driver
+        driver = webdriver.Chrome() # selenium auto install
         for id in voteinfolist.keys():
             print("ID: ",id)
             print("Stocks: ",voteinfolist[id])
@@ -1202,7 +1204,7 @@ while(True):
                 voteinfolist[id]=[]
         
         for user_id in shareholderIDs:
-            driver = webdriver.Edge(service=service) # use the installed driver
+            driver = webdriver.Chrome() # selenium auto install
             # open a test page (can be local or online HTML)
             driver.get("file:///" + os.path.abspath("./statement.html"))
             time.sleep(5)
@@ -1230,7 +1232,7 @@ while(True):
                 print("ID number is not valid")
                 continue
                 
-            driver = webdriver.Edge(service=service) # use the installed driver
+            driver = webdriver.Chrome() # use the installed driver
             while(True):
                 try:
                     autoLogin(id)
